@@ -274,7 +274,7 @@
             color: var(--dark);
         }
 
-        /* FORMULÁRIO CORRIGIDO */
+        /* FORMULÁRIO CORRIGIDO - DATAS NÃO VÃO PASSAR */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -289,6 +289,7 @@
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            overflow: hidden; /* IMPORTANTE: impede que elementos saiam da seção */
         }
 
         .form-section h3 {
@@ -299,10 +300,12 @@
             margin-bottom: 0.5rem;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid var(--secondary);
+            white-space: nowrap;
         }
 
         .form-group {
             width: 100%;
+            max-width: 100%; /* Garante que não ultrapasse */
         }
 
         .form-group label {
@@ -328,6 +331,7 @@
             font-size: 1rem;
             transition: border 0.3s;
             box-sizing: border-box;
+            max-width: 100%; /* Não ultrapassa o pai */
         }
 
         .form-group input:focus,
@@ -338,20 +342,32 @@
             box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
         }
 
-        /* DATES CORRIGIDO - NÃO VAI PASSAR DO LIMITE */
+        /* DATES CORRIGIDO - AGORA NÃO PASSA DO LIMITE */
         .date-inputs {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
             width: 100%;
+            max-width: 100%; /* Não ultrapassa */
         }
 
         .date-inputs .form-group {
             width: 100%;
+            max-width: 100%;
+            overflow: hidden; /* Esconde qualquer overflow */
         }
 
         .date-inputs input[type="date"] {
             width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Estilo específico para inputs de data */
+        input[type="date"] {
+            min-height: 45px;
+            font-family: inherit;
         }
 
         /* CONTADOR DE NOITES */
@@ -362,22 +378,36 @@
             text-align: center;
             font-weight: bold;
             border: 1px solid #b3e0ff;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
         }
 
-        /* HÓSPEDES */
+        /* HÓSPEDES - CORRIGIDO */
         .hospedes {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
+            gap: 0.75rem; /* Reduzido para caber melhor */
             width: 100%;
+            max-width: 100%;
         }
 
         .hospedes .form-group {
             width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .hospedes label {
+            font-size: 0.8rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .hospedes input[type="number"] {
             width: 100%;
+            max-width: 100%;
         }
 
         /* ÁREA DE TEXTO */
@@ -386,6 +416,8 @@
             min-height: 80px;
             max-height: 150px;
             font-family: inherit;
+            width: 100%;
+            max-width: 100%;
         }
 
         /* AÇÕES DO FORMULÁRIO */
@@ -396,6 +428,8 @@
             margin-top: 2rem;
             padding-top: 1.5rem;
             border-top: 1px solid #eee;
+            width: 100%;
+            max-width: 100%;
         }
 
         .form-actions .btn {
@@ -459,9 +493,14 @@
                 gap: 1.5rem;
             }
             
-            .date-inputs,
-            .hospedes {
+            .date-inputs {
                 grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .hospedes {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.5rem;
             }
             
             .form-actions {
@@ -492,6 +531,50 @@
             .reserva-actions .btn {
                 width: 100%;
             }
+            
+            .hospedes {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .date-inputs {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-section {
+                padding: 1rem;
+            }
+        }
+
+        /* Classe específica para garantir que datas não passem */
+        .date-fix {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow: hidden !important;
+            position: relative;
+        }
+
+        /* Melhor visualização para inputs de data */
+        .date-input-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .date-input-wrapper input[type="date"] {
+            width: 100%;
+            padding-right: 30px; /* Espaço para o calendário nativo */
+        }
+
+        /* Indicador visual de que está dentro dos limites */
+        .form-section {
+            border: 1px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .form-section:hover {
+            border-color: #e0e0e0;
         }
     </style>
 </head>
@@ -580,24 +663,34 @@
                         </div>
                     </div>
 
-                    <!-- Datas e Quarto -->
-                    <div class="form-section">
+                    <!-- Datas e Quarto - CORRIGIDO -->
+                    <div class="form-section" style="position: relative; overflow: visible;">
                         <h3><i class="fas fa-calendar"></i> Datas e Quarto</h3>
+                        
+                        <!-- DATAS - AGORA DENTRO DOS LIMITES -->
                         <div class="date-inputs">
-                            <div class="form-group">
+                            <div class="form-group date-fix">
                                 <label>Check-in</label>
-                                <input type="date" name="data_entrada" id="dataEntrada" required>
+                                <div class="date-input-wrapper">
+                                    <input type="date" name="data_entrada" id="dataEntrada" required 
+                                           style="width: 100%; box-sizing: border-box;">
+                                </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group date-fix">
                                 <label>Check-out</label>
-                                <input type="date" name="data_saida" id="dataSaida" required>
+                                <div class="date-input-wrapper">
+                                    <input type="date" name="data_saida" id="dataSaida" required 
+                                           style="width: 100%; box-sizing: border-box;">
+                                </div>
                             </div>
                         </div>
+                        
                         <div class="form-group">
                             <div class="noites-container">
                                 <div id="noitesInfo">Noites: 0</div>
                             </div>
                         </div>
+                        
                         <div class="form-group">
                             <label>Quarto</label>
                             <select name="quarto_numero" id="selectQuarto" required>
@@ -611,20 +704,24 @@
                                 <option value="302">302 - Suíte (R$ 500/noite)</option>
                             </select>
                         </div>
+                        
                         <div class="form-group">
                             <label>Hóspedes</label>
                             <div class="hospedes">
                                 <div class="form-group">
-                                    <label style="font-size: 0.8rem;">Adultos</label>
-                                    <input type="number" name="adultos" min="1" max="4" value="1">
+                                    <label style="font-size: 0.8rem; display: block; overflow: hidden; text-overflow: ellipsis;">Adultos</label>
+                                    <input type="number" name="adultos" min="1" max="4" value="1" 
+                                           style="width: 100%; box-sizing: border-box;">
                                 </div>
                                 <div class="form-group">
-                                    <label style="font-size: 0.8rem;">Crianças</label>
-                                    <input type="number" name="criancas" min="0" max="4" value="0">
+                                    <label style="font-size: 0.8rem; display: block; overflow: hidden; text-overflow: ellipsis;">Crianças</label>
+                                    <input type="number" name="criancas" min="0" max="4" value="0" 
+                                           style="width: 100%; box-sizing: border-box;">
                                 </div>
                                 <div class="form-group">
-                                    <label style="font-size: 0.8rem;">Bebês</label>
-                                    <input type="number" name="bebes" min="0" max="2" value="0">
+                                    <label style="font-size: 0.8rem; display: block; overflow: hidden; text-overflow: ellipsis;">Bebês</label>
+                                    <input type="number" name="bebes" min="0" max="2" value="0" 
+                                           style="width: 100%; box-sizing: border-box;">
                                 </div>
                             </div>
                         </div>
@@ -665,7 +762,8 @@
                         </div>
                         <div class="form-group">
                             <label>Valor Total (R$)</label>
-                            <input type="number" step="0.01" name="valor_total" placeholder="0.00" required min="0">
+                            <input type="number" step="0.01" name="valor_total" placeholder="0.00" required min="0" 
+                                   style="width: 100%; box-sizing: border-box;">
                         </div>
                     </div>
                 </div>
@@ -706,17 +804,23 @@
                         </div>
                     </div>
 
-                    <!-- Datas e Quarto -->
+                    <!-- Datas e Quarto - CORRIGIDO -->
                     <div class="form-section">
                         <h3><i class="fas fa-calendar"></i> Datas e Quarto</h3>
                         <div class="date-inputs">
-                            <div class="form-group">
+                            <div class="form-group date-fix">
                                 <label>Check-in</label>
-                                <input type="date" name="data_entrada" id="editarDataEntrada" required>
+                                <div class="date-input-wrapper">
+                                    <input type="date" name="data_entrada" id="editarDataEntrada" required 
+                                           style="width: 100%; box-sizing: border-box;">
+                                </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group date-fix">
                                 <label>Check-out</label>
-                                <input type="date" name="data_saida" id="editarDataSaida" required>
+                                <div class="date-input-wrapper">
+                                    <input type="date" name="data_saida" id="editarDataSaida" required 
+                                           style="width: 100%; box-sizing: border-box;">
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -740,15 +844,18 @@
                             <div class="hospedes">
                                 <div class="form-group">
                                     <label style="font-size: 0.8rem;">Adultos</label>
-                                    <input type="number" name="adultos" min="1" max="4" value="1">
+                                    <input type="number" name="adultos" min="1" max="4" value="1" 
+                                           style="width: 100%; box-sizing: border-box;">
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 0.8rem;">Crianças</label>
-                                    <input type="number" name="criancas" min="0" max="4" value="0">
+                                    <input type="number" name="criancas" min="0" max="4" value="0" 
+                                           style="width: 100%; box-sizing: border-box;">
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 0.8rem;">Bebês</label>
-                                    <input type="number" name="bebes" min="0" max="2" value="0">
+                                    <input type="number" name="bebes" min="0" max="2" value="0" 
+                                           style="width: 100%; box-sizing: border-box;">
                                 </div>
                             </div>
                         </div>
@@ -787,7 +894,8 @@
                         </div>
                         <div class="form-group">
                             <label>Valor Total (R$)</label>
-                            <input type="number" step="0.01" name="valor_total" placeholder="0.00" required min="0">
+                            <input type="number" step="0.01" name="valor_total" placeholder="0.00" required min="0" 
+                                   style="width: 100%; box-sizing: border-box;">
                         </div>
                     </div>
                 </div>
@@ -963,11 +1071,16 @@
             const entradaDate = new Date(entrada);
             const saidaDate = new Date(saida);
             const diferenca = saidaDate.getTime() - entradaDate.getTime();
-            return Math.floor(diferenca / (1000 * 60 * 60 * 24));
+            const noites = Math.floor(diferenca / (1000 * 60 * 60 * 24));
+            return noites > 0 ? noites : 0;
         }
 
         function formatarData(data) {
-            return new Date(data).toLocaleDateString('pt-BR', {
+            if (!data) return 'N/A';
+            const date = new Date(data);
+            if (isNaN(date.getTime())) return 'Data inválida';
+            
+            return date.toLocaleDateString('pt-BR', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric'
