@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reservas - Hotel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS COMPLETO COM CORREÇÕES */
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: var(--secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Botões */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        /* Estatísticas */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 5px solid var(--secondary);
+        }
+
+        .stat-card h3 {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        /* Filtros */
+        .filtros {
+            display: flex;
+            gap: 1rem;
+            padding: 0 2rem 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filtros select,
+        .filtros input[type="text"],
+        .filtros input[type="date"],
+        .filtros input[type="number"] {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            min-width: 180px;
+            flex: 1;
+        }
+
+        .filtros input[type="text"] {
+            min-width: 200px;
+        }
+
+        /* Grid de Reservas */
+        .reservas-grid {
+            padding: 0 2rem 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .reserva-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .reserva-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .reserva-header {
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reserva-codigo {
+            font-weight: bold;
+            font-family: monospace;
+            background: rgba(255,255,255,0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+        }
+
+        .reserva-body {
+            padding: 1.5rem;
+        }
+
+        .reserva-info {
+            margin-bottom: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-label {
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .reserva-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        /* Badges de Status */
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pendente { background: #fff3cd; color: #856404; }
+        .status-confirmada { background: #d4edda; color: #155724; }
+        .status-checkin { background: #d1ecf1; color: #0c5460; }
+        .status-checkout { background: #cce5ff; color: #004085; }
+        .status-cancelada { background: #f8d7da; color: #721c24; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .close:hover {
+            color: var(--dark);
+        }
+
+        /* FORMULÁRIO CORRIGIDO */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .form-section {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-section h3 {
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        .form-group {
+            width: 100%;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* INPUTS COM TAMANHO CORRETO */
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group input[type="number"],
+        .form-group input[type="date"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        /* DATES CORRIGIDO - NÃO VAI PASSAR DO LIMITE */
+        .date-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .date-inputs .form-group {
+            width: 100%;
+        }
+
+        .date-inputs input[type="date"] {
+            width: 100%;
+        }
+
+        /* CONTADOR DE NOITES */
+        .noites-container {
+            background: #e8f4fc;
+            padding: 0.75rem;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #b3e0ff;
+        }
+
+        /* HÓSPEDES */
+        .hospedes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .hospedes .form-group {
+            width: 100%;
+        }
+
+        .hospedes input[type="number"] {
+            width: 100%;
+        }
+
+        /* ÁREA DE TEXTO */
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            max-height: 150px;
+            font-family: inherit;
+        }
+
+        /* AÇÕES DO FORMULÁRIO */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .form-actions .btn {
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        /* Mensagens */
+        .message {
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .message-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .filtros {
+                padding: 0 1rem 1rem;
+            }
+            
+            .filtros select,
+            .filtros input[type="text"],
+            .filtros input[type="date"] {
+                min-width: 100%;
+            }
+            
+            .reservas-grid {
+                grid-template-columns: 1fr;
+                padding: 0 1rem 1rem;
+            }
+            
+            .modal-content {
+                padding: 1.5rem;
+                margin: 1rem;
+                width: calc(100% - 2rem);
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .date-inputs,
+            .hospedes {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .form-actions .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            
+            .reserva-header {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+            
+            .reserva-actions {
+                flex-direction: column;
+            }
+            
+            .reserva-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-hotel"></i>
+            <div>
+                <h1>Sistema de Reservas</h1>
+                <p>Gestão de Reservas Hoteleiras</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="abrirModal('modalNovaReserva')">
+                <i class="fas fa-plus"></i> Nova Reserva
+            </button>
+        </div>
+    </header>
+
+    <!-- Mensagens -->
+    <div id="messageContainer"></div>
+
+    <!-- Estatísticas -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <h3>Pendentes</h3>
+            <p id="countPendentes">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Confirmadas</h3>
+            <p id="countConfirmadas">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Check-in Hoje</h3>
+            <p id="countCheckin">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total Reservas</h3>
+            <p id="countTotal">0</p>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros">
+        <select id="filtroStatus" onchange="filtrarReservas()">
+            <option value="">Todos os Status</option>
+            <option value="pendente">Pendentes</option>
+            <option value="confirmada">Confirmadas</option>
+            <option value="checkin">Check-in</option>
+            <option value="checkout">Check-out</option>
+            <option value="cancelada">Canceladas</option>
+        </select>
+        <input type="date" id="filtroData" onchange="filtrarReservas()">
+        <input type="text" id="buscaNome" placeholder="Buscar por nome..." onkeyup="filtrarReservas()">
+        <input type="text" id="buscaCodigo" placeholder="Código da reserva..." onkeyup="filtrarReservas()">
+    </div>
+
+    <!-- Grid de Reservas -->
+    <div class="reservas-grid" id="reservasGrid">
+        <!-- As reservas serão carregadas aqui -->
+    </div>
+
+    <!-- Modal Nova Reserva -->
+    <div id="modalNovaReserva" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal('modalNovaReserva')">&times;</span>
+            <h2><i class="fas fa-plus-circle"></i> Nova Reserva</h2>
+            
+            <form id="formNovaReserva" onsubmit="criarReserva(event)">
+                <div class="form-grid">
+                    <!-- Dados do Cliente -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-user"></i> Dados do Cliente</h3>
+                        <div class="form-group">
+                            <input type="text" name="cliente_nome" placeholder="Nome Completo *" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" name="cliente_email" placeholder="E-mail">
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" name="cliente_telefone" placeholder="Telefone *" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="cliente_documento" placeholder="CPF/Passaporte *" required>
+                        </div>
+                    </div>
+
+                    <!-- Datas e Quarto -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-calendar"></i> Datas e Quarto</h3>
+                        <div class="date-inputs">
+                            <div class="form-group">
+                                <label>Check-in</label>
+                                <input type="date" name="data_entrada" id="dataEntrada" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Check-out</label>
+                                <input type="date" name="data_saida" id="dataSaida" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="noites-container">
+                                <div id="noitesInfo">Noites: 0</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Quarto</label>
+                            <select name="quarto_numero" id="selectQuarto" required>
+                                <option value="">Selecione o quarto</option>
+                                <option value="101">101 - Standard (R$ 200/noite)</option>
+                                <option value="102">102 - Standard (R$ 200/noite)</option>
+                                <option value="103">103 - Standard (R$ 200/noite)</option>
+                                <option value="201">201 - Luxo (R$ 350/noite)</option>
+                                <option value="202">202 - Luxo (R$ 350/noite)</option>
+                                <option value="301">301 - Suíte (R$ 500/noite)</option>
+                                <option value="302">302 - Suíte (R$ 500/noite)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Hóspedes</label>
+                            <div class="hospedes">
+                                <div class="form-group">
+                                    <label style="font-size: 0.8rem;">Adultos</label>
+                                    <input type="number" name="adultos" min="1" max="4" value="1">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-size: 0.8rem;">Crianças</label>
+                                    <input type="number" name="criancas" min="0" max="4" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-size: 0.8rem;">Bebês</label>
+                                    <input type="number" name="bebes" min="0" max="2" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detalhes -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-info-circle"></i> Detalhes</h3>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select name="status">
+                                <option value="pendente">Pendente</option>
+                                <option value="confirmada">Confirmada</option>
+                                <option value="checkin">Check-in</option>
+                                <option value="checkout">Check-out</option>
+                                <option value="cancelada">Cancelada</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Origem da Reserva</label>
+                            <select name="origem_reserva">
+                                <option value="presencial">Presencial</option>
+                                <option value="telefone">Telefone</option>
+                                <option value="email">E-mail</option>
+                                <option value="website">Website</option>
+                                <option value="booking">Booking.com</option>
+                                <option value="airbnb">Airbnb</option>
+                                <option value="agencia">Agência</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Observações</label>
+                            <textarea name="observacoes" placeholder="Observações..." rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Preferências do Cliente</label>
+                            <textarea name="preferencias" placeholder="Preferências do cliente..." rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Valor Total (R$)</label>
+                            <input type="number" step="0.01" name="valor_total" placeholder="0.00" required min="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="fecharModal('modalNovaReserva')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar Reserva
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Editar Reserva -->
+    <div id="modalEditarReserva" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal('modalEditarReserva')">&times;</span>
+            <h2><i class="fas fa-edit"></i> Editar Reserva</h2>
+            
+            <form id="formEditarReserva" onsubmit="atualizarReserva(event)">
+                <input type="hidden" id="editarId" name="id">
+                <div class="form-grid">
+                    <!-- Dados do Cliente -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-user"></i> Dados do Cliente</h3>
+                        <div class="form-group">
+                            <input type="text" name="cliente_nome" placeholder="Nome Completo *" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" name="cliente_email" placeholder="E-mail">
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" name="cliente_telefone" placeholder="Telefone *" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="cliente_documento" placeholder="CPF/Passaporte *" required>
+                        </div>
+                    </div>
+
+                    <!-- Datas e Quarto -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-calendar"></i> Datas e Quarto</h3>
+                        <div class="date-inputs">
+                            <div class="form-group">
+                                <label>Check-in</label>
+                                <input type="date" name="data_entrada" id="editarDataEntrada" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Check-out</label>
+                                <input type="date" name="data_saida" id="editarDataSaida" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="noites-container">
+                                <div id="editarNoitesInfo">Noites: 0</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Quarto</label>
+                            <select name="quarto_numero" id="editarSelectQuarto" required>
+                                <option value="">Selecione o quarto</option>
+                                <option value="101">101 - Standard</option>
+                                <option value="102">102 - Standard</option>
+                                <option value="201">201 - Luxo</option>
+                                <option value="202">202 - Luxo</option>
+                                <option value="301">301 - Suíte</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Hóspedes</label>
+                            <div class="hospedes">
+                                <div class="form-group">
+                                    <label style="font-size: 0.8rem;">Adultos</label>
+                                    <input type="number" name="adultos" min="1" max="4" value="1">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-size: 0.8rem;">Crianças</label>
+                                    <input type="number" name="criancas" min="0" max="4" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-size: 0.8rem;">Bebês</label>
+                                    <input type="number" name="bebes" min="0" max="2" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detalhes -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-info-circle"></i> Detalhes</h3>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select name="status">
+                                <option value="pendente">Pendente</option>
+                                <option value="confirmada">Confirmada</option>
+                                <option value="checkin">Check-in</option>
+                                <option value="checkout">Check-out</option>
+                                <option value="cancelada">Cancelada</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Origem da Reserva</label>
+                            <select name="origem_reserva">
+                                <option value="presencial">Presencial</option>
+                                <option value="telefone">Telefone</option>
+                                <option value="email">E-mail</option>
+                                <option value="website">Website</option>
+                                <option value="booking">Booking.com</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Observações</label>
+                            <textarea name="observacoes" placeholder="Observações..." rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Preferências do Cliente</label>
+                            <textarea name="preferencias" placeholder="Preferências do cliente..." rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Valor Total (R$)</label>
+                            <input type="number" step="0.01" name="valor_total" placeholder="0.00" required min="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-danger" onclick="confirmarExclusao(reservaEditandoId)">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                    <button type="button" class="btn" onclick="fecharModal('modalEditarReserva')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Atualizar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Ver Reserva -->
+    <div id="modalVerReserva" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal('modalVerReserva')">&times;</span>
+            <div id="detalhesReserva">
+                <!-- Detalhes serão carregados aqui -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Completo -->
+    <script>
+        // Banco de dados simulado (localStorage)
+        const DB_KEY = 'hotel_reservas';
+        
+        // Inicializar dados
+        function inicializarDB() {
+            if (!localStorage.getItem(DB_KEY)) {
+                const dadosIniciais = [
+                    {
+                        id: 1,
+                        codigo: 'RES2402001',
+                        cliente_nome: 'João Silva',
+                        cliente_email: 'joao@email.com',
+                        cliente_telefone: '(11) 99999-9999',
+                        cliente_documento: '123.456.789-00',
+                        data_entrada: '2024-02-15',
+                        data_saida: '2024-02-18',
+                        quarto_numero: '101',
+                        adultos: 2,
+                        criancas: 1,
+                        bebes: 0,
+                        status: 'confirmada',
+                        origem_reserva: 'website',
+                        observacoes: 'Cama extra necessária',
+                        preferencias: 'Quarto térreo se possível',
+                        valor_total: 600.00,
+                        data_criacao: '2024-02-10'
+                    },
+                    {
+                        id: 2,
+                        codigo: 'RES2402002',
+                        cliente_nome: 'Maria Santos',
+                        cliente_email: 'maria@email.com',
+                        cliente_telefone: '(21) 98888-8888',
+                        cliente_documento: '987.654.321-00',
+                        data_entrada: '2024-02-20',
+                        data_saida: '2024-02-22',
+                        quarto_numero: '201',
+                        adultos: 1,
+                        criancas: 0,
+                        bebes: 0,
+                        status: 'pendente',
+                        origem_reserva: 'telefone',
+                        observacoes: 'Check-in após as 20h',
+                        preferencias: '',
+                        valor_total: 700.00,
+                        data_criacao: '2024-02-12'
+                    },
+                    {
+                        id: 3,
+                        codigo: 'RES2402003',
+                        cliente_nome: 'Carlos Oliveira',
+                        cliente_email: 'carlos@empresa.com',
+                        cliente_telefone: '(31) 97777-7777',
+                        cliente_documento: '456.789.123-00',
+                        data_entrada: '2024-02-25',
+                        data_saida: '2024-02-28',
+                        quarto_numero: '301',
+                        adultos: 2,
+                        criancas: 0,
+                        bebes: 0,
+                        status: 'checkin',
+                        origem_reserva: 'agencia',
+                        observacoes: 'Hóspede VIP',
+                        preferencias: 'Frutas na chegada',
+                        valor_total: 1500.00,
+                        data_criacao: '2024-02-15'
+                    }
+                ];
+                localStorage.setItem(DB_KEY, JSON.stringify(dadosIniciais));
+            }
+        }
+
+        // Funções do Banco de Dados
+        function getReservas() {
+            const dados = localStorage.getItem(DB_KEY);
+            return dados ? JSON.parse(dados) : [];
+        }
+
+        function salvarReservas(reservas) {
+            localStorage.setItem(DB_KEY, JSON.stringify(reservas));
+        }
+
+        function adicionarReserva(reserva) {
+            const reservas = getReservas();
+            const novoId = reservas.length > 0 ? Math.max(...reservas.map(r => r.id)) + 1 : 1;
+            
+            // Gerar código da reserva
+            const hoje = new Date();
+            const mes = (hoje.getMonth() + 1).toString().padStart(2, '0');
+            const sequencia = (reservas.length + 1).toString().padStart(3, '0');
+            const codigo = `RES${hoje.getFullYear().toString().slice(-2)}${mes}${sequencia}`;
+            
+            const novaReserva = {
+                id: novoId,
+                codigo: codigo,
+                data_criacao: new Date().toISOString().split('T')[0],
+                ...reserva
+            };
+            
+            reservas.push(novaReserva);
+            salvarReservas(reservas);
+            return novaReserva;
+        }
+
+        function atualizarReservaDB(id, dadosAtualizados) {
+            let reservas = getReservas();
+            const index = reservas.findIndex(r => r.id === id);
+            
+            if (index !== -1) {
+                reservas[index] = { ...reservas[index], ...dadosAtualizados };
+                salvarReservas(reservas);
+                return true;
+            }
+            return false;
+        }
+
+        function excluirReserva(id) {
+            let reservas = getReservas();
+            reservas = reservas.filter(r => r.id !== id);
+            salvarReservas(reservas);
+        }
+
+        // Funções da Interface
+        function mostrarMensagem(texto, tipo = 'success') {
+            const container = document.getElementById('messageContainer');
+            const message = document.createElement('div');
+            message.className = `message message-${tipo}`;
+            message.innerHTML = `
+                <span>${texto}</span>
+                <button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(message);
+            
+            setTimeout(() => {
+                if (message.parentElement) {
+                    message.remove();
+                }
+            }, 5000);
+        }
+
+        function calcularNoites(entrada, saida) {
+            const entradaDate = new Date(entrada);
+            const saidaDate = new Date(saida);
+            const diferenca = saidaDate.getTime() - entradaDate.getTime();
+            return Math.floor(diferenca / (1000 * 60 * 60 * 24));
+        }
+
+        function formatarData(data) {
+            return new Date(data).toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function formatarMoeda(valor) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(valor);
+        }
+
+        // Renderizar Reservas
+        function renderizarReservas(reservas = null) {
+            const grid = document.getElementById('reservasGrid');
+            const dados = reservas || getReservas();
+            
+            grid.innerHTML = '';
+            
+            if (dados.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column:1/-1; text-align:center; padding:3rem; color:#666;">
+                        <i class="fas fa-calendar-times" style="font-size:3rem; margin-bottom:1rem; color:#ccc;"></i>
+                        <h3>Nenhuma reserva encontrada</h3>
+                        <p>Clique em "Nova Reserva" para adicionar a primeira</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            dados.forEach(reserva => {
+                const noites = calcularNoites(reserva.data_entrada, reserva.data_saida);
+                
+                const card = document.createElement('div');
+                card.className = 'reserva-card';
+                card.innerHTML = `
+                    <div class="reserva-header">
+                        <div>
+                            <span class="reserva-codigo">${reserva.codigo}</span>
+                            <span class="status-badge status-${reserva.status}">${reserva.status.toUpperCase()}</span>
+                        </div>
+                        <div style="color:#ccc; font-size:0.8rem;">${formatarData(reserva.data_criacao)}</div>
+                    </div>
+                    <div class="reserva-body">
+                        <div class="reserva-info">
+                            <div class="info-item">
+                                <span class="info-label">Cliente:</span>
+                                <span style="font-weight:600;">${reserva.cliente_nome}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Período:</span>
+                                <span>${formatarData(reserva.data_entrada)} - ${formatarData(reserva.data_saida)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Noites:</span>
+                                <span>${noites}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Quarto:</span>
+                                <span>${reserva.quarto_numero}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Hóspedes:</span>
+                                <span>${reserva.adultos} adulto(s), ${reserva.criancas} criança(s)</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Valor:</span>
+                                <span style="font-weight:bold;color:var(--success);">${formatarMoeda(reserva.valor_total)}</span>
+                            </div>
+                        </div>
+                        <div class="reserva-actions">
+                            <button class="btn btn-sm" onclick="verReserva(${reserva.id})">
+                                <i class="fas fa-eye"></i> Ver
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="editarReserva(${reserva.id})">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="confirmarExclusao(${reserva.id})">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            atualizarEstatisticas(dados);
+        }
+
+        // Atualizar Estatísticas
+        function atualizarEstatisticas(reservas) {
+            const hoje = new Date().toISOString().split('T')[0];
+            
+            const pendentes = reservas.filter(r => r.status === 'pendente').length;
+            const confirmadas = reservas.filter(r => r.status === 'confirmada').length;
+            const checkin = reservas.filter(r => r.status === 'checkin').length;
+            
+            document.getElementById('countPendentes').textContent = pendentes;
+            document.getElementById('countConfirmadas').textContent = confirmadas;
+            document.getElementById('countCheckin').textContent = checkin;
+            document.getElementById('countTotal').textContent = reservas.length;
+        }
+
+        // Filtros
+        function filtrarReservas() {
+            const status = document.getElementById('filtroStatus').value;
+            const data = document.getElementById('filtroData').value;
+            const nome = document.getElementById('buscaNome').value.toLowerCase();
+            const codigo = document.getElementById('buscaCodigo').value.toUpperCase();
+            
+            let reservas = getReservas();
+            
+            if (status) {
+                reservas = reservas.filter(r => r.status === status);
+            }
+            
+            if (data) {
+                reservas = reservas.filter(r => r.data_entrada === data || r.data_saida === data);
+            }
+            
+            if (nome) {
+                reservas = reservas.filter(r => r.cliente_nome.toLowerCase().includes(nome));
+            }
+            
+            if (codigo) {
+                reservas = reservas.filter(r => r.codigo.includes(codigo));
+            }
+            
+            renderizarReservas(reservas);
+        }
+
+        // Funções do Modal
+        function abrirModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            if (modalId === 'modalNovaReserva') {
+                // Configurar datas padrão
+                const hoje = new Date();
+                const amanha = new Date(hoje);
+                amanha.setDate(amanha.getDate() + 1);
+                
+                document.getElementById('dataEntrada').value = hoje.toISOString().split('T')[0];
+                document.getElementById('dataSaida').value = amanha.toISOString().split('T')[0];
+                atualizarContadorNoites();
+            }
+        }
+
+        function fecharModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.body.style.overflow = 'auto';
+            
+            if (modalId === 'modalNovaReserva') {
+                document.getElementById('formNovaReserva').reset();
+            }
+        }
+
+        // Atualizar contador de noites
+        function atualizarContadorNoites() {
+            const entrada = document.getElementById('dataEntrada').value;
+            const saida = document.getElementById('dataSaida').value;
+            
+            if (entrada && saida) {
+                const noites = calcularNoites(entrada, saida);
+                document.getElementById('noitesInfo').textContent = `Noites: ${noites}`;
+                
+                // Calcular valor automaticamente baseado no quarto
+                const quartoSelect = document.getElementById('selectQuarto');
+                const quartoSelecionado = quartoSelect.value;
+                let precoPorNoite = 200; // padrão
+                
+                if (quartoSelecionado.startsWith('201') || quartoSelecionado.startsWith('202')) {
+                    precoPorNoite = 350;
+                } else if (quartoSelecionado.startsWith('301') || quartoSelecionado.startsWith('302')) {
+                    precoPorNoite = 500;
+                }
+                
+                if (noites > 0 && quartoSelecionado) {
+                    const valorTotal = noites * precoPorNoite;
+                    document.querySelector('input[name="valor_total"]').value = valorTotal.toFixed(2);
+                }
+            }
+        }
+
+        // Criar nova reserva
+        function criarReserva(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const dados = Object.fromEntries(formData.entries());
+            
+            // Converter números
+            dados.adultos = parseInt(dados.adultos) || 1;
+            dados.criancas = parseInt(dados.criancas) || 0;
+            dados.bebes = parseInt(dados.bebes) || 0;
+            dados.valor_total = parseFloat(dados.valor_total) || 0;
+            
+            try {
+                adicionarReserva(dados);
+                mostrarMensagem('Reserva criada com sucesso!');
+                fecharModal('modalNovaReserva');
+                renderizarReservas();
+            } catch (error) {
+                mostrarMensagem('Erro ao criar reserva: ' + error.message, 'error');
+            }
+        }
+
+        // Editar reserva
+        let reservaEditandoId = null;
+
+        function editarReserva(id) {
+            const reservas = getReservas();
+            const reserva = reservas.find(r => r.id === id);
+            
+            if (reserva) {
+                reservaEditandoId = id;
+                
+                // Preencher formulário
+                const form = document.getElementById('formEditarReserva');
+                for (const key in reserva) {
+                    const input = form.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        input.value = reserva[key];
+                    }
+                }
+                
+                document.getElementById('editarId').value = id;
+                
+                // Atualizar contador de noites
+                const entrada = reserva.data_entrada;
+                const saida = reserva.data_saida;
+                const noites = calcularNoites(entrada, saida);
+                document.getElementById('editarNoitesInfo').textContent = `Noites: ${noites}`;
+                
+                abrirModal('modalEditarReserva');
+            }
+        }
+
+        function atualizarReserva(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const dados = Object.fromEntries(formData.entries());
+            const id = parseInt(dados.id);
+            
+            // Converter números
+            dados.adultos = parseInt(dados.adultos) || 1;
+            dados.criancas = parseInt(dados.criancas) || 0;
+            dados.bebes = parseInt(dados.bebes) || 0;
+            dados.valor_total = parseFloat(dados.valor_total) || 0;
+            
+            // Remover id dos dados
+            delete dados.id;
+            
+            if (atualizarReservaDB(id, dados)) {
+                mostrarMensagem('Reserva atualizada com sucesso!');
+                fecharModal('modalEditarReserva');
+                renderizarReservas();
+            } else {
+                mostrarMensagem('Erro ao atualizar reserva', 'error');
+            }
+        }
+
+        // Ver detalhes da reserva
+        function verReserva(id) {
+            const reservas = getReservas();
+            const reserva = reservas.find(r => r.id === id);
+            
+            if (reserva) {
+                const noites = calcularNoites(reserva.data_entrada, reserva.data_saida);
+                
+                document.getElementById('detalhesReserva').innerHTML = `
+                    <h2>Detalhes da Reserva</h2>
+                    <div style="background:#f8f9fa; padding:1.5rem; border-radius:8px; margin:1rem 0;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                            <span class="reserva-codigo" style="font-size:1.2rem;">${reserva.codigo}</span>
+                            <span class="status-badge status-${reserva.status}" style="font-size:1rem;">
+                                ${reserva.status.toUpperCase()}
+                            </span>
+                        </div>
+                        
+                        <h3><i class="fas fa-user"></i> Cliente</h3>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin:1rem 0;">
+                            <div><strong>Nome:</strong> ${reserva.cliente_nome}</div>
+                            <div><strong>E-mail:</strong> ${reserva.cliente_email || 'Não informado'}</div>
+                            <div><strong>Telefone:</strong> ${reserva.cliente_telefone}</div>
+                            <div><strong>Documento:</strong> ${reserva.cliente_documento}</div>
+                        </div>
+                        
+                        <h3><i class="fas fa-calendar"></i> Estadia</h3>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin:1rem 0;">
+                            <div><strong>Check-in:</strong> ${formatarData(reserva.data_entrada)}</div>
+                            <div><strong>Check-out:</strong> ${formatarData(reserva.data_saida)}</div>
+                            <div><strong>Noites:</strong> ${noites}</div>
+                            <div><strong>Quarto:</strong> ${reserva.quarto_numero}</div>
+                        </div>
+                        
+                        <h3><i class="fas fa-users"></i> Hóspedes</h3>
+                        <div style="margin:1rem 0;">
+                            <div><strong>Adultos:</strong> ${reserva.adultos}</div>
+                            <div><strong>Crianças:</strong> ${reserva.criancas}</div>
+                            <div><strong>Bebês:</strong> ${reserva.bebes || 0}</div>
+                        </div>
+                        
+                        <h3><i class="fas fa-money-bill-wave"></i> Financeiro</h3>
+                        <div style="margin:1rem 0;">
+                            <div style="font-size:1.5rem; color:var(--success); font-weight:bold;">
+                                ${formatarMoeda(reserva.valor_total)}
+                            </div>
+                        </div>
+                        
+                        ${reserva.observacoes ? `
+                            <h3><i class="fas fa-sticky-note"></i> Observações</h3>
+                            <div style="background:white; padding:1rem; border-radius:5px; margin:1rem 0;">
+                                ${reserva.observacoes}
+                            </div>
+                        ` : ''}
+                        
+                        ${reserva.preferencias ? `
+                            <h3><i class="fas fa-heart"></i> Preferências</h3>
+                            <div style="background:white; padding:1rem; border-radius:5px; margin:1rem 0;">
+                                ${reserva.preferencias}
+                            </div>
+                        ` : ''}
+                        
+                        <div style="margin-top:2rem; padding-top:1rem; border-top:1px solid #ddd; color:#666; font-size:0.9rem;">
+                            Reserva criada em: ${formatarData(reserva.data_criacao)}
+                        </div>
+                    </div>
+                `;
+                
+                abrirModal('modalVerReserva');
+            }
+        }
+
+        // Confirmar exclusão
+        function confirmarExclusao(id) {
+            if (confirm('Tem certeza que deseja excluir esta reserva? Esta ação não pode ser desfeita.')) {
+                excluirReserva(id);
+                mostrarMensagem('Reserva excluída com sucesso!', 'success');
+                renderizarReservas();
+                
+                // Se estava editando, fecha o modal
+                if (document.getElementById('modalEditarReserva').style.display === 'block') {
+                    fecharModal('modalEditarReserva');
+                }
+            }
+        }
+
+        // Inicializar sistema
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarDB();
+            renderizarReservas();
+            
+            // Configurar listeners para datas
+            document.getElementById('dataEntrada').addEventListener('change', atualizarContadorNoites);
+            document.getElementById('dataSaida').addEventListener('change', atualizarContadorNoites);
+            document.getElementById('selectQuarto').addEventListener('change', atualizarContadorNoites);
+            
+            // Para o formulário de edição
+            document.getElementById('editarDataEntrada').addEventListener('change', function() {
+                const entrada = this.value;
+                const saida = document.getElementById('editarDataSaida').value;
+                if (entrada && saida) {
+                    const noites = calcularNoites(entrada, saida);
+                    document.getElementById('editarNoitesInfo').textContent = `Noites: ${noites}`;
+                }
+            });
+            
+            document.getElementById('editarDataSaida').addEventListener('change', function() {
+                const saida = this.value;
+                const entrada = document.getElementById('editarDataEntrada').value;
+                if (entrada && saida) {
+                    const noites = calcularNoites(entrada, saida);
+                    document.getElementById('editarNoitesInfo').textContent = `Noites: ${noites}`;
+                }
+            });
+            
+            // Fechar modal ao clicar fora
+            window.onclick = function(event) {
+                if (event.target.classList.contains('modal')) {
+                    event.target.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
